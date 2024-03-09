@@ -21,7 +21,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 fun main() {
-    embeddedServer(Netty, port = System.getenv("PORT")?.toInt() ?: 8080) {
+    embeddedServer(Netty, port = System.getenv("PORT").toInt()) {
         install(Authentication) {
             jwt("auth-jwt") {
                 realm = "ktor sample"
