@@ -1,8 +1,11 @@
+import com.google.cloud.tools.gradle.appengine.appyaml.AppEngineAppYamlExtension
+
 plugins {
     kotlin("jvm") version "1.9.22"
     application
     kotlin("plugin.serialization") version "1.5.31"
-    id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("com.google.cloud.tools.appengine") version "2.4.2"
 
 }
 
@@ -11,14 +14,13 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap") }
 }
 
 application {
     // Define your main class
-    mainClass = "org.example.Application"
+    mainClass.set("io.ktor.server.netty.EngineMain")
 }
-
-
 tasks.withType<JavaExec> {
     jvmArgs("--add-opens", "java.base/java.time=ALL-UNNAMED")
 }
@@ -54,4 +56,14 @@ tasks {
 }
 kotlin {
     jvmToolchain(17)
+}
+configure<AppEngineAppYamlExtension> {
+    stage {
+
+        setArtifact("build/libs/${project.name}-${version}-all.jar")
+    }
+    deploy {
+        version = "GCLOUD_CONFIG"
+        projectId = "GCLOUD_CONFIG"
+    }
 }
