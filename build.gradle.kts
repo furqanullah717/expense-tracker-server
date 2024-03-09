@@ -36,6 +36,7 @@ dependencies {
     implementation("com.auth0:java-jwt:3.18.1")
     implementation("io.ktor:ktor-gson:1.6.5")
     // Database and Exposed ORM
+    implementation("mysql:mysql-connector-java:8.0.28") // Check for the latest version
     implementation("org.jetbrains.exposed:exposed-core:0.36.2")
     implementation("org.jetbrains.exposed:exposed-dao:0.36.2")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.36.2")

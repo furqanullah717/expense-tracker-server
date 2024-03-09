@@ -11,12 +11,15 @@ import io.ktor.auth.*
 import io.ktor.auth.jwt.*
 import io.ktor.features.*
 import io.ktor.gson.*
+import io.ktor.http.*
+import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import model.resposne.ApiResponse
 import org.example.config.DatabaseConfig
 
-import org.example.routes.*
+import routes.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -37,6 +40,17 @@ fun main() {
         }
 
         DatabaseConfig.init()
+        install(StatusPages) {
+            exception<Throwable> { cause ->
+                call.respond(
+                    HttpStatusCode.InternalServerError, ApiResponse<Any>(
+                    success = false,
+                    message = "An internal server error occurred",
+                    errors = listOf(cause.localizedMessage ?: "Unknown error")
+                )
+                )
+            }
+        }
         install(ContentNegotiation) {
             gson {
                 setPrettyPrinting()
@@ -60,6 +74,7 @@ fun main() {
                 getTransactionsByUser()
                 updateTransaction()
                 deleteTransaction()
+                categoryRoutes()
             }
         }
     }.start(wait = true)

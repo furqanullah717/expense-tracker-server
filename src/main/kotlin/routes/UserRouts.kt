@@ -1,4 +1,4 @@
-package org.example.routes
+package routes
 
 import at.favre.lib.crypto.bcrypt.BCrypt
 import com.auth0.jwt.JWT
@@ -8,9 +8,9 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import org.example.model.request.User
+import model.resposne.ApiResponse
+import model.request.User
 import org.example.model.table.Users
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -18,7 +18,7 @@ import java.util.*
 
 fun Route.register() {
     post("/register") {
-        val user = call.receive<org.example.model.request.User>()
+        val user = call.receive<User>()
         val hashedPassword = BCrypt.withDefaults().hashToString(12, user.password.toCharArray())
         transaction {
             Users.insert {
@@ -26,7 +26,12 @@ fun Route.register() {
                 it[passwordHash] = hashedPassword
             }
         }
-        call.respond(HttpStatusCode.Created, "User registered successfully")
+        call.respond(
+            HttpStatusCode.Created, ApiResponse<Any>(
+                success = true,
+                data = "Registration Successful"
+            )
+        )
     }
 }
 
@@ -40,7 +45,12 @@ fun Route.signIn() {
         if (userInDb == null || !BCrypt.verifyer()
                 .verify(user.password.toCharArray(), userInDb[Users.passwordHash]).verified
         ) {
-            call.respond(HttpStatusCode.Unauthorized, "Invalid credentials")
+            call.respond(
+                HttpStatusCode.Unauthorized, ApiResponse<Any>(
+                    success = false,
+                    message = "Invalid Credentials"
+                )
+            )
             return@post
         }
 
@@ -55,6 +65,11 @@ fun Route.signIn() {
                 )
             ) // Use a secure way to store and retrieve the secret
 
-        call.respond(mapOf("token" to token))
+        call.respond(
+            ApiResponse<Any>(
+                success = true,
+                data = mapOf("token" to token)
+            )
+        )
     }
 }
